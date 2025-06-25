@@ -128,12 +128,12 @@ class FiniteVolumeSolver:
         boundary_info = {}
         A_dense = A.toarray()  # Convert to dense BEFORE applying BC
         self.boundary_condition.apply_to_matrix(A_dense, b, self.mesh, boundary_info)
-      
+        
 
         # Convert back to sparse format
         A = sp.csr_matrix(A_dense)
-        print(f"DEBUG: First boundary row after BC: {A_dense[0, :5]}")
-        print(f"DEBUG: Matrix rank after BC: {np.linalg.matrix_rank(A_dense)}")
+        print(f"DEBUG: Matrix diagonal elements: {np.diag(A.toarray())[:10]}")
+        print(f"DEBUG: First boundary row: {A.toarray()[0, :10]}")
         
         return A, b
     

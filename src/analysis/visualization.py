@@ -315,6 +315,66 @@ class ResultVisualizer:
             print(f"Saved plot: {filepath}")
         
         return fig
+    
+    def plot_error_distribution_interactive(self, numerical_solution, exact_solution, mesh):
+            """Plot avec interactivité pour voir indices et valeurs"""
+            error = np.abs(numerical_solution - exact_solution)
+            
+            fig, ax = plt.subplots(figsize=(12, 8))
+            X, Y = mesh.x_centers, mesh.y_centers
+            
+            # Graphique avec données pour interactivité
+            im = ax.imshow(error, extent=[0, 1, 0, 1], origin='lower', 
+                        cmap='Reds', interpolation='nearest')
+            
+            # Fonction pour affichage au survol
+            def on_hover(event):
+                if event.inaxes == ax:
+                    # Convertir coordonnées souris en indices maille
+                    i = int(event.xdata * mesh.nx)
+                    j = int(event.ydata * mesh.ny)
+                    
+                    if 0 <= i < mesh.nx and 0 <= j < mesh.ny:
+                        error_val = error[i, j]
+                        num_val = numerical_solution[i, j]
+                        
+                        # Afficher info dans le titre
+                        ax.set_title(f'Maille ({i+1},{j+1}) - Erreur: {error_val:.2e} - Valeur: {num_val:.4f}')
+                        fig.canvas.draw()
+            
+            # Connecter événement
+            fig.canvas.mpl_connect('motion_notify_event', on_hover)
+            
+            plt.colorbar(im, label='Erreur absolue')
+            plt.show()
+
+    def plot_solution_interactive(self, solution, mesh):
+            """Solution avec affichage interactif des indices et valeurs"""
+            
+            fig, ax = plt.subplots(figsize=(12, 8))
+            X, Y = mesh.x_centers, mesh.y_centers
+            
+            im = ax.imshow(solution, extent=[0, 1, 0, 1], origin='lower', 
+                        cmap='viridis', interpolation='nearest')
+            
+            def on_hover(event):
+                if event.inaxes == ax:
+                    i = int(event.xdata * mesh.nx)
+                    j = int(event.ydata * mesh.ny)
+                    
+                    if 0 <= i < mesh.nx and 0 <= j < mesh.ny:
+                        val = solution[i, j]
+                        # Indices selon convention du prof (1-based)
+                        i_prof = i + 1
+                        j_prof = j + 1
+                        
+                        ax.set_title(f'Maille ({i_prof},{j_prof}) - Valeur: {val:.6f}')
+                        fig.canvas.draw()
+            
+            fig.canvas.mpl_connect('motion_notify_event', on_hover)
+            
+            plt.colorbar(im, label='u')
+            plt.show()
 
 def create_visualizer(config) -> ResultVisualizer:
     """Factory function to create visualizer from configuration"""

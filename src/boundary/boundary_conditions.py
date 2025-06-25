@@ -14,65 +14,6 @@ class BoundaryCondition(ABC):
         pass
 
 class DirichletBC(BoundaryCondition):
-    """Dirichlet boundary conditions (fixed values) - FIXED VERSION"""
-    
-    def __init__(self, values: Dict[str, np.ndarray]):
-        self.values = values
-    
-    def apply_to_matrix(self, A: np.ndarray, b: np.ndarray, mesh, boundary_info: Dict):
-        """Apply Dirichlet BC to system matrix - CORRECTED"""
-        nx, ny = mesh.nx, mesh.ny
-        
-        def get_global_index(i: int, j: int) -> int:
-            """Convert (i,j) cell indices to global matrix index"""
-            return i * ny + j
-        
-        # Store boundary indices to apply Dirichlet conditions
-        boundary_indices = set()
-        
-        # Apply boundary conditions
-        for boundary, values in self.values.items():
-            if boundary == 'left':  # i = 0
-                for j in range(ny):
-                    idx = get_global_index(0, j)
-                    boundary_indices.add(idx)
-                    self._apply_dirichlet_at_index(A, b, idx, values[j])
-                    
-            elif boundary == 'right':  # i = nx-1
-                for j in range(ny):
-                    idx = get_global_index(nx-1, j)
-                    boundary_indices.add(idx)
-                    self._apply_dirichlet_at_index(A, b, idx, values[j])
-                    
-            elif boundary == 'bottom':  # j = 0
-                for i in range(nx):
-                    idx = get_global_index(i, 0)
-                    boundary_indices.add(idx)
-                    self._apply_dirichlet_at_index(A, b, idx, values[i])
-                    
-            elif boundary == 'top':  # j = ny-1
-                for i in range(nx):
-                    idx = get_global_index(i, ny-1)
-                    boundary_indices.add(idx)
-                    self._apply_dirichlet_at_index(A, b, idx, values[i])
-    
-    def _apply_dirichlet_at_index(self, A: np.ndarray, b: np.ndarray, idx: int, value: float):
-        """Apply Dirichlet BC at specific matrix index - CORRECTED"""
-        # Zero out the entire row
-        A[idx, :] = 0.0
-        # Set diagonal to 1
-        A[idx, idx] = 1.0
-        # Set right-hand side to the boundary value
-        b[idx] = value
-        
-        # CRITICAL FIX: Also zero out the column for this boundary node
-        # and adjust the RHS for other equations
-        for i in range(A.shape[0]):
-            if i != idx and A[i, idx] != 0.0:
-                # Subtract the contribution of the boundary node
-                b[i] -= A[i, idx] * value
-                # Zero out the matrix entry
-                A[i, idx] = 0.0
     """Dirichlet boundary conditions (fixed values)"""
     
     def __init__(self, values: Dict[str, np.ndarray]):

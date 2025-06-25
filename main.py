@@ -6,6 +6,8 @@ import numpy as np
 import sys
 import os
 
+
+
 # Add src to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
@@ -139,18 +141,11 @@ def solve_single_case(config, visualizer=None):
             print("\nGenerating plots...")
             
             # Solution comparison
-            visualizer.plot_comparison(
-                solution, exact_solution, solver.mesh,
-                title="Solution Comparison",
-                filename="solution_comparison"
-            )
+            visualizer.plot_solution_interactive(solution, solver.mesh)
+           
             
             # Error distribution
-            visualizer.plot_error_distribution(
-                solution, exact_solution, solver.mesh,
-                title="Error Distribution",
-                filename="error_distribution"
-            )
+            visualizer.plot_error_distribution_interactive(solution, exact_solution, solver.mesh)
             
             # 3D plots
             visualizer.plot_solution_3d(
